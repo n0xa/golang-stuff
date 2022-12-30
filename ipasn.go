@@ -1,6 +1,5 @@
 package main
-// accepts an IP address as the first command line argument
-// queries the bgpview.io API to display the hosting provider
+
 import (
 	"os"
 	"encoding/json"
@@ -72,9 +71,18 @@ type IpAsn struct {
 	if err != nil {
 		log.Panicln(err)
 	}
-	json.Unmarshal([]byte(body), &ipasn)
-    for _, asn := range ipasn.Data.Prefixes {
-	fmt.Printf("%20s | %25s\n", asn.Asn.Name, asn.Asn.Description)
-    }
+	if err := json.Unmarshal([]byte(body), &ipasn); err != nil {
+		fmt.Println(string(body))
+		log.Panicln(err)
+	}
+	if len(ipasn.Data.Prefixes) > 0 {
+
+		fmt.Printf("%6s | %2s | %-10s | %-25s\n", "ASNum", "CC", "Name", "Description")
+    	for _, asn := range ipasn.Data.Prefixes {
+			fmt.Printf("%6d | %2s | %-10s | %-25s\n", asn.Asn.Asn, asn.Asn.CountryCode, asn.Asn.Name, asn.Asn.Description)
+   		 }
+	}else{
+		fmt.Println("BGPView Returned no ASN Prefixes.")
+	}
     resp.Body.Close()
 }
