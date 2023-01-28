@@ -83,12 +83,12 @@ type IpAsn struct {
 	}
 	if len(ipasn.Data.Ipv4Prefixes) > 0 {
 
-		fmt.Printf("%6s | %2s | %-10s | %-25s\n", "Prefix", "CC", "Name", "Description")
+		fmt.Printf("%20s | %2s | %-25s | %-25s\n", "Prefix", "CC", "Name", "Description")
     	for _, asn := range ipasn.Data.Ipv4Prefixes {
-			fmt.Printf("%20s | %2s | %-20s | %-25s\n", asn.Prefix, asn.CountryCode, asn.Name, asn.Description)
+			fmt.Printf("%20s | %2s | %-25s | %-25s\n", asn.Prefix, asn.CountryCode, asn.Name, asn.Description)
    		 }
     	for _, asn := range ipasn.Data.Ipv6Prefixes {
-			fmt.Printf("%20s | %2s | %-20s | %-25s\n", asn.Prefix, asn.CountryCode, asn.Name, asn.Description)
+			fmt.Printf("%20s | %2s | %-25s | %-25s\n", asn.Prefix, asn.CountryCode, asn.Name, asn.Description)
    		 }
 	}else{
 		fmt.Println("BGPView Returned no ASN Prefixes.")
