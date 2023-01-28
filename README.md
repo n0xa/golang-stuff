@@ -9,4 +9,12 @@ bgpview.io tools
 
 HPFeeds Tools
 -------------
-* hpfeeds-client.go is a reworked version of a broken, un-maintained HPFeeds implementation in go. I needed an easy way to just get the JSON Payload out of my Honeypot network
+* hpfeeds-client.go is a reworked version of a broken, un-maintained HPFeeds implementation in go. I needed an easy way to just get the JSON Payload out of my Honeypot network. You can watch my MHN instance with it like this:
+```
+go run hpfeeds-client.go seckc-community fk6QgrnyvwbWSxCIwL5SIc2oARC4DXx46 mhn.h-i-r.net 10000 cowrie.sessions
+```
+or compile it first:
+```
+go build hpfeeds-client.go
+./hpfeeds-client seckc-community fk6QgrnyvwbWSxCIwL5SIc2oARC4DXx46 mhn.h-i-r.net 10000 cowrie.sessions
+```
