@@ -18,3 +18,4 @@ or compile it first:
 go build hpfeeds-client.go
 ./hpfeeds-client seckc-community fk6QgrnyvwbWSxCIwL5SIc2oARC4DXx46 mhn.h-i-r.net 10000 cowrie.sessions
 ```
+You can also pass the output directly to formatting and query tools like `jq` or save the json for use later.  `jq '.peerIP,.urls'` for example, will list the attacking IP addresses and any payload URLs that the honeypot reported to HPFeeds
