@@ -51,7 +51,7 @@ type Hpfeeds struct {
 	Log bool
 }
 
-func NewHpfeeds(host string, port int, ident string, auth string) Hpfeeds {
+func NewHpfeeds(ident, auth, host string, port int) Hpfeeds {
 	return Hpfeeds{
 		host:  host,
 		port:  port,
@@ -258,7 +258,7 @@ func main() {
 	  fmt.Println("Port must be an integer")
 	  os.Exit(1)
 	}
-	hp := NewHpfeeds(host, port, ident, auth)
+	hp := NewHpfeeds(ident, auth, host, port)
 	hp.Log = true
 	hp.Connect()
 
