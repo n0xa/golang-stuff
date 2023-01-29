@@ -11,8 +11,6 @@ import (
 	"net/http"
 )
 
-func main() {
-
 type IpAsn struct {
 	Status        string `json:"status"`
 	StatusMessage string `json:"status_message"`
@@ -60,6 +58,16 @@ type IpAsn struct {
 	} `json:"@meta"`
 }
 
+// Check error f | reason: limit the use of if err != nil 
+// x = input error
+func CE(x error) {
+	if x != nil {
+		log.Panicln(err)
+	}
+}
+
+func main() {
+
 	if len(os.Args) < 2 {
 		fmt.Println("IP Address needed")
 		os.Exit(1)
@@ -69,15 +77,10 @@ type IpAsn struct {
 
 	var ipasn IpAsn
 	resp, err := http.Get("https://api.bgpview.io/ip/" + ip)
-	if err != nil {
-		log.Panicln(err)
-	}
-
+	CE(err)
 	// Read and display response body
 	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Panicln(err)
-	}
+	CE(err)
 	if err := json.Unmarshal([]byte(body), &ipasn); err != nil {
 		fmt.Println(string(body))
 		log.Panicln(err)
