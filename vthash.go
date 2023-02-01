@@ -7,7 +7,7 @@ package main
 // Credits: Lots of help from IG: @totally_not_a_haxxer | GH: ArkAngeL43
 // ---> You must have a valid VirusTotal API key. <--- 
 // Make sure you set and export the VTAPI environment variable.
-//
+
 import (
 	"encoding/json"
 	"fmt"
@@ -16,9 +16,14 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
+	"strings"
+	"sort"
 )
 
-
+var words = make(map[string]int)
+var regex = regexp.MustCompile(`[^a-zA-Z]+`)
+var result string
 // some helper functions 
 
 func GetKey(val map[string]interface{}) (arr []string) {
@@ -26,6 +31,27 @@ func GetKey(val map[string]interface{}) (arr []string) {
 		arr = append(arr, fmt.Sprint(i))
 	}
 	return arr
+}
+
+func TopFive(sourcemap map[string]int) []string {
+	keys := make([]string, 0, len(sourcemap))
+    topfive := make([]string, 0)
+	counter := 0
+    for key := range sourcemap {
+        keys = append(keys, key)
+    }
+    sort.SliceStable(keys, func(i, j int) bool{
+        return sourcemap[keys[i]] > sourcemap[keys[j]]
+    })
+
+    for _, k := range keys{
+		topfive = append(topfive, k)
+		counter += 1
+		if counter >= 5 {
+			break
+		}
+    }
+	return topfive
 }
 
 func main() {
@@ -39,18 +65,16 @@ func main() {
 		fmt.Println("-> Export the VTAPI environment variable with your VirusTotal API key.")
 		exit += 2
 	}
-
 	if exit > 0 {
 		// this way we can get all of the errors out before exiting
 		os.Exit(exit)
 	}
-
 	filehash := os.Args[1]
 	data := url.Values{
 		"apikey":   {apikey},
 		"resource": {filehash},
 	}
-
+	fmt.Println("Querying VirusTotal file/report API")
 	resp, _ := http.PostForm("https://www.virustotal.com/vtapi/v2/file/report", data)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -63,6 +87,8 @@ func main() {
 	}
 
     // Recursive digging into scans returned by VirusTotal
+    resultcount := 0
+	fmt.Println("Detections:")
 	for _, value := range DataMap { 
 		if fmt.Sprintf("%T", value) == "map[string]interface {}" {
 			newmap := value.(map[string]interface{})
@@ -72,10 +98,21 @@ func main() {
 				if secval != nil {
 					secondary := secval.(map[string]interface{})
 					if secondary["result"] != nil {
-						fmt.Println(secondary["result"])
+						if result, ok := secondary["result"].(string); ok {
+							resultcount += 1
+							resultwords := regex.ReplaceAllString(result," ")
+							for _, word := range(strings.Split(resultwords, " ")){
+								if len(word) > 3 {
+									words[strings.Title(strings.ToLower(word))] += 1
+								}
+							}
+							fmt.Println("-->",resultwords)
+						}
 					}
 				}
 			}
 		}
 	}
+	fmt.Println(resultcount, "detections")
+	fmt.Println("Most common words:", TopFive(words))
 }
