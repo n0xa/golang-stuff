@@ -106,7 +106,7 @@ func main() {
 									words[strings.Title(strings.ToLower(word))] += 1
 								}
 							}
-							fmt.Println("-->",resultwords)
+							fmt.Println("-->",result)
 						}
 					}
 				}
