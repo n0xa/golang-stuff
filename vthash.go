@@ -121,6 +121,7 @@ func main() {
 
     // Recursive digging into scans returned by VirusTotal
     resultcount := 0
+    falsecount := 0
 	fmt.Println("Detections:")
 	for _, value := range DataMap { 
 		if fmt.Sprintf("%T", value) == "map[string]interface {}" {
@@ -141,11 +142,13 @@ func main() {
 							}
 							fmt.Println("-->",result)
 						}
+					}else{
+						falsecount += 1
 					}
 				}
 			}
 		}
 	}
-	fmt.Println(resultcount, "detections")
+	fmt.Println(resultcount, "detections,", falsecount, "scanners with no results")
 	fmt.Println("Most common words:", TopFive(words))
 }
