@@ -48,14 +48,6 @@ func GetKey(val map[string]interface{}) (arr []string) {
 	return arr
 }
 
-// todo: handle file-not-known-by-VT case, upload file by default?
-// example json when resource not known:
-//{
-//  "response_code": 0,
-//  "resource": "0123456789abcdef9301829198",
-//  "verbose_msg": "The requested resource is not among the finished, queued or pending scans"
-//}
-
 func TopFive(sourcemap map[string]int) []string {
 	keys := make([]string, 0, len(sourcemap))
     topfive := make([]string, 0)
@@ -123,7 +115,11 @@ func main() {
     resultcount := 0
     falsecount := 0
 	fmt.Println("Detections:")
-	for _, value := range DataMap { 
+	for key, value := range DataMap {
+		if (key == "response_code") && (value.(float64) == 0) {
+			fmt.Println("File not known to VirusTotal.")
+			os.Exit(0)
+		}
 		if fmt.Sprintf("%T", value) == "map[string]interface {}" {
 			newmap := value.(map[string]interface{})
 			mapkeys := GetKey(newmap) 
@@ -142,7 +138,7 @@ func main() {
 							}
 							fmt.Println("-->",result)
 						}
-					}else{
+					} else {
 						falsecount += 1
 					}
 				}
