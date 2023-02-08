@@ -1,18 +1,20 @@
-// based on https://github.com/hpfeeds/go-hpfeeds 
-//   (2017) which was very broken
+// based on https://github.com/hpfeeds/go-hpfeeds
+//
+//	(2017) which was very broken
+//
 // By default, just dumps out the json payload from hpfeeds
 // Reworked by Noah Axon in 2013
 // ax0n@h-i-r.net | IG: @4x0nn | Twitter: @ax0n
 package main
 
 import (
-	"os"
 	"bytes"
 	"crypto/sha1"
 	"encoding/binary"
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"strconv"
 )
 
@@ -242,7 +244,6 @@ func (hp *Hpfeeds) log(format string, v ...interface{}) {
 	}
 }
 
-
 func main() {
 	if len(os.Args) != 6 {
 		fmt.Printf("Usage: %s <ident> <authkey> <server> <port> <channel> (only one channel supported for now)\n", os.Args[0])
@@ -252,11 +253,11 @@ func main() {
 	ident := os.Args[1]
 	auth := os.Args[2]
 	host := os.Args[3]
-	port,err := strconv.Atoi(os.Args[4])
+	port, err := strconv.Atoi(os.Args[4])
 	channel := os.Args[5]
 	if err != nil {
-	  fmt.Println("Port must be an integer")
-	  os.Exit(1)
+		fmt.Println("Port must be an integer")
+		os.Exit(1)
 	}
 	hp := NewHpfeeds(ident, auth, host, port)
 	hp.Log = true
@@ -266,7 +267,7 @@ func main() {
 	hp.Subscribe(channel, firehose)
 	go func() {
 		for foo := range firehose {
-			// If you really want the HPFeeds honeypot id, uncomment. 
+			// If you really want the HPFeeds honeypot id, uncomment.
 			// fmt.Println(foo.Name, string(foo.Payload))
 			// I just want the json payload so we can do fun stuff with jq etc
 			fmt.Println(string(foo.Payload))

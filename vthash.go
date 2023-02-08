@@ -5,28 +5,29 @@ package main
 
 // By Noah Axon | IG: @4x0nn | Twitter: @ax0n | GH: n0xa
 // Credits: Lots of help from IG: @totally_not_a_haxxer | GH: ArkAngeL43
-// ---> You must have a valid VirusTotal API key. <--- 
+// ---> You must have a valid VirusTotal API key. <---
 // Make sure you set and export the VTAPI environment variable.
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"regexp"
-	"strings"
 	"sort"
-	"crypto/sha256"
+	"strings"
 )
 
 var words = make(map[string]int)
 var regex = regexp.MustCompile(`[^a-zA-Z]+`)
 var result string
-// some helper functions 
+
+// some helper functions
 
 func fileHash(filename string) string {
 	fh, err := os.Open(filename)
@@ -38,7 +39,7 @@ func fileHash(filename string) string {
 	if _, err := io.Copy(hash, fh); err != nil {
 		log.Fatal(err)
 	}
-	return(fmt.Sprintf("%x", hash.Sum(nil)))
+	return (fmt.Sprintf("%x", hash.Sum(nil)))
 }
 
 func GetKey(val map[string]interface{}) (arr []string) {
@@ -50,22 +51,22 @@ func GetKey(val map[string]interface{}) (arr []string) {
 
 func TopFive(sourcemap map[string]int) []string {
 	keys := make([]string, 0, len(sourcemap))
-    topfive := make([]string, 0)
+	topfive := make([]string, 0)
 	counter := 0
-    for key := range sourcemap {
-        keys = append(keys, key)
-    }
-    sort.SliceStable(keys, func(i, j int) bool{
-        return sourcemap[keys[i]] > sourcemap[keys[j]]
-    })
+	for key := range sourcemap {
+		keys = append(keys, key)
+	}
+	sort.SliceStable(keys, func(i, j int) bool {
+		return sourcemap[keys[i]] > sourcemap[keys[j]]
+	})
 
-    for _, k := range keys{
+	for _, k := range keys {
 		topfive = append(topfive, k)
 		counter += 1
 		if counter >= 5 {
 			break
 		}
-    }
+	}
 	return topfive
 }
 
@@ -74,7 +75,7 @@ func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("-> File Name, SHA-512, SHA-256, MD5 Hash or VT Scan-Id expected as first argument.")
 		exit += 1
-	} 
+	}
 	apikey := os.Getenv("VTAPI")
 	if len(apikey) < 64 {
 		fmt.Println("-> Export the VTAPI environment variable with your VirusTotal API key.")
@@ -111,9 +112,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-    // Recursive digging into scans returned by VirusTotal
-    resultcount := 0
-    falsecount := 0
+	// Recursive digging into scans returned by VirusTotal
+	resultcount := 0
+	falsecount := 0
 	fmt.Println("Detections:")
 	for key, value := range DataMap {
 		if (key == "response_code") && (value.(float64) == 0) {
@@ -122,7 +123,7 @@ func main() {
 		}
 		if fmt.Sprintf("%T", value) == "map[string]interface {}" {
 			newmap := value.(map[string]interface{})
-			mapkeys := GetKey(newmap) 
+			mapkeys := GetKey(newmap)
 			for i := 0; i < len(mapkeys); i++ {
 				secval := newmap[mapkeys[i]]
 				if secval != nil {
@@ -130,13 +131,13 @@ func main() {
 					if secondary["result"] != nil {
 						if result, ok := secondary["result"].(string); ok {
 							resultcount += 1
-							resultwords := regex.ReplaceAllString(result," ")
-							for _, word := range(strings.Split(resultwords, " ")){
+							resultwords := regex.ReplaceAllString(result, " ")
+							for _, word := range strings.Split(resultwords, " ") {
 								if len(word) > 3 {
 									words[strings.Title(strings.ToLower(word))] += 1
 								}
 							}
-							fmt.Println("-->",result)
+							fmt.Println("-->", result)
 						}
 					} else {
 						falsecount += 1
