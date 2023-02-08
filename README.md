@@ -22,7 +22,7 @@ You can also pass the output directly to formatting and query tools like `jq` or
 
 VirusTotal Tools
 ----------------
-You must acquire a VirusTotal API key and export it as an environment variable, such as in your .bashrc or .zshrc file.
+Before using these tools, you must register with VirusTotal, acquire an API key and export it in the VTAPI environment variable, such as in your .bashrc or .zshrc file.
 `export VTAPI=dab2_THIS_IS_AN_EXAMPLE_API_KEY_-_CHANGEME_e8e0496bcfce5e91f0000`
 * vthash.go is a command-line tool to gather the list of detections from VirusTotal for a given file or file hash. This allows security analysts to quickly size up an unknown file they have run across to see if it's been detected previously without firing up a web browser or uploading it.
 * vtdomain.go is a command-line tool to fetch information about a domain name from VirusTotal. Work-In-Progress, only returns IP addresses right now, will add more details later
