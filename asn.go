@@ -75,6 +75,7 @@ func main() {
 
 	// Read and display response body
 	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -94,5 +95,4 @@ func main() {
 	} else {
 		fmt.Println("BGPView Returned no ASN Prefixes.")
 	}
-	resp.Body.Close()
 }
