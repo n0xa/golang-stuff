@@ -23,3 +23,4 @@ You can also pass the output directly to formatting and query tools like `jq` or
 VirusTotal Tools
 ----------------
 * vthash.go is a command-line tool to gather the list of detections from VirusTotal for a given file or file hash. This allows security analysts to quickly size up an unknown file they have run across to see if it's been detected previously without firing up a web browser or uploading it.
+* vtdomain.go is a command-line tool to fetch information about a domain name from VirusTotal. Work-In-Progress, only returns IP addresses right now, will add more details later
