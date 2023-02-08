@@ -67,9 +67,9 @@ func main() {
 	}
 	fmt.Println(" -=-=-=- DNS Resolutions -=-=-=-")
 	if len(VtDomain.Resolutions) > 0 {
-		fmt.Printf("%.*s | %15s | %-25s \n", len(domain), "Name", "IP", "Date")
+		fmt.Printf("%*s | %15s | %-25s \n", len(domain), "Name", "IP", "Date")
 		for _, resolution := range VtDomain.Resolutions {
-			fmt.Printf("%.*s | %15s | %-25s \n", len(domain), domain, resolution.IPAddress, resolution.LastResolved)
+			fmt.Printf("%*s | %15s | %-25s \n", len(domain), domain, resolution.IPAddress, resolution.LastResolved)
 		}
 	} else {
 		fmt.Println("Virustotal Returned no Resolutions.")
