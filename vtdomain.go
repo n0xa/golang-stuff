@@ -17,26 +17,26 @@ import (
 )
 
 func main() {
-type vtdomain struct {
-	DomainSiblings                 []interface{}   `json:"domain_siblings"`
-	UndetectedUrls                 [][]interface{} `json:"undetected_urls"`
-	UndetectedDownloadedSamples    []interface{}   `json:"undetected_downloaded_samples"`
-	Whois                          string          `json:"whois"`
-	WhoisTimestamp                 int             `json:"whois_timestamp"`
-	DetectedDownloadedSamples      []interface{}   `json:"detected_downloaded_samples"`
-	ResponseCode                   int             `json:"response_code"`
-	VerboseMsg                     string          `json:"verbose_msg"`
-	ForcepointThreatSeekerCategory string          `json:"Forcepoint ThreatSeeker category"`
-	Resolutions                    []struct {
-		LastResolved string `json:"last_resolved"`
-		IPAddress    string `json:"ip_address"`
-	} `json:"resolutions"`
-	Subdomains   []string      `json:"subdomains"`
-	DetectedUrls []interface{} `json:"detected_urls"`
-}
+	type vtdomain struct {
+		DomainSiblings                 []interface{}   `json:"domain_siblings"`
+		UndetectedUrls                 [][]interface{} `json:"undetected_urls"`
+		UndetectedDownloadedSamples    []interface{}   `json:"undetected_downloaded_samples"`
+		Whois                          string          `json:"whois"`
+		WhoisTimestamp                 int             `json:"whois_timestamp"`
+		DetectedDownloadedSamples      []interface{}   `json:"detected_downloaded_samples"`
+		ResponseCode                   int             `json:"response_code"`
+		VerboseMsg                     string          `json:"verbose_msg"`
+		ForcepointThreatSeekerCategory string          `json:"Forcepoint ThreatSeeker category"`
+		Resolutions                    []struct {
+			LastResolved string `json:"last_resolved"`
+			IPAddress    string `json:"ip_address"`
+		} `json:"resolutions"`
+		Subdomains   []string      `json:"subdomains"`
+		DetectedUrls []interface{} `json:"detected_urls"`
+	}
 
-var VtDomain vtdomain
-baseurl := "https://www.virustotal.com/vtapi"
+	var VtDomain vtdomain
+	baseurl := "https://www.virustotal.com/vtapi"
 
 	exit := 0
 	if len(os.Args) < 2 {
@@ -65,7 +65,7 @@ baseurl := "https://www.virustotal.com/vtapi"
 	if err != nil {
 		log.Fatal(err)
 	}
-    fmt.Println (" -=-=-=- DNS Resolutions -=-=-=-")
+	fmt.Println(" -=-=-=- DNS Resolutions -=-=-=-")
 	if len(VtDomain.Resolutions) > 0 {
 		fmt.Printf("%.*s | %15s | %-25s \n", len(domain), "Name", "IP", "Date")
 		for _, resolution := range VtDomain.Resolutions {
