@@ -65,13 +65,28 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(" -=-=-=- DNS Resolutions -=-=-=-")
+
+	if len(VtDomain.Whois) > 0 {
+		fmt.Println("\n -=-=-=- Whois -=-=-=-")
+		fmt.Println(VtDomain.Whois)
+	}
+
+	fmt.Println("\n -=-=-=- DNS Resolutions -=-=-=-")
 	if len(VtDomain.Resolutions) > 0 {
 		fmt.Printf("%*s | %15s | %-25s \n", len(domain), "Name", "IP", "Date")
 		for _, resolution := range VtDomain.Resolutions {
 			fmt.Printf("%*s | %15s | %-25s \n", len(domain), domain, resolution.IPAddress, resolution.LastResolved)
 		}
 	} else {
-		fmt.Println("Virustotal Returned no Resolutions.")
+		fmt.Println("Virustotal Returned no DNS Resolutions.")
+	}
+
+	fmt.Println("\n -=-=-=- Subdomains / Host Names -=-=-=-")
+	if len(VtDomain.Subdomains) > 0 {
+		for _, subdomain := range VtDomain.Subdomains {
+			fmt.Println(subdomain)
+		}
+	} else {
+		fmt.Println("Virustotal Returned no Subdomains / Host Names.")
 	}
 }
