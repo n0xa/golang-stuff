@@ -42,13 +42,6 @@ func fileHash(filename string) string {
 	return (fmt.Sprintf("%x", hash.Sum(nil)))
 }
 
-func GetKey(val map[string]interface{}) (arr []string) {
-	for i := range val {
-		arr = append(arr, fmt.Sprint(i))
-	}
-	return arr
-}
-
 func TopFive(sourcemap map[string]int) []string {
 	keys := make([]string, 0, len(sourcemap))
 	topfive := make([]string, 0)
@@ -68,6 +61,28 @@ func TopFive(sourcemap map[string]int) []string {
 		}
 	}
 	return topfive
+}
+
+type scanresult struct {
+	Detected bool   `json:"detected"`
+	Version  string `json:"version"`
+	Result   string `json:"result"`
+	Update   string `json:"update"`
+}
+
+type vthash struct {
+	Scans        map[string]scanresult `json:"scans"`
+	ScanID       string                `json:"scan_id"`
+	Sha1         string                `json:"sha1"`
+	Resource     string                `json:"resource"`
+	ResponseCode int                   `json:"response_code"`
+	ScanDate     string                `json:"scan_date"`
+	Permalink    string                `json:"permalink"`
+	VerboseMsg   string                `json:"verbose_msg"`
+	Total        int                   `json:"total"`
+	Positives    int                   `json:"positives"`
+	Sha256       string                `json:"sha256"`
+	Md5          string                `json:"md5"`
 }
 
 func main() {
@@ -104,46 +119,31 @@ func main() {
 	resp, _ := http.PostForm("https://www.virustotal.com/vtapi/v2/file/report", data)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-
-	// simple MSI instead of trying to wrangle this JSON with a struct
-	var DataMap map[string]interface{}
-	err = json.Unmarshal(body, &DataMap)
+	var VtHash vthash
+	err = json.Unmarshal(body, &VtHash)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Recursive digging into scans returned by VirusTotal
 	resultcount := 0
 	falsecount := 0
 	fmt.Println("Detections:")
-	for key, value := range DataMap {
-		if (key == "response_code") && (value.(float64) == 0) {
-			fmt.Println("File not known to VirusTotal.")
-			os.Exit(0)
-		}
-		if fmt.Sprintf("%T", value) == "map[string]interface {}" {
-			newmap := value.(map[string]interface{})
-			mapkeys := GetKey(newmap)
-			for i := 0; i < len(mapkeys); i++ {
-				secval := newmap[mapkeys[i]]
-				if secval != nil {
-					secondary := secval.(map[string]interface{})
-					if secondary["result"] != nil {
-						if result, ok := secondary["result"].(string); ok {
-							resultcount += 1
-							resultwords := regex.ReplaceAllString(result, " ")
-							for _, word := range strings.Split(resultwords, " ") {
-								if len(word) > 3 {
-									words[strings.Title(strings.ToLower(word))] += 1
-								}
-							}
-							fmt.Println("-->", result)
-						}
-					} else {
-						falsecount += 1
-					}
+	if VtHash.ResponseCode == 0 {
+		fmt.Println("File not known to VirusTotal.")
+		os.Exit(0)
+	}
+	for _, scan := range VtHash.Scans {
+		if scan.Detected {
+			resultcount += 1
+			resultwords := regex.ReplaceAllString(scan.Result, " ")
+			for _, word := range strings.Split(resultwords, " ") {
+				if len(word) > 3 {
+					words[strings.Title(strings.ToLower(word))] += 1
 				}
 			}
+			fmt.Println("-->", scan.Result)
+		} else {
+			falsecount += 1
 		}
 	}
 	fmt.Println(resultcount, "detections,", falsecount, "scanners with no results")
