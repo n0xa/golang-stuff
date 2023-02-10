@@ -127,12 +127,13 @@ func main() {
 
 	resultcount := 0
 	falsecount := 0
-	fmt.Println("Detections:")
 	if VtHash.ResponseCode == 0 {
-		fmt.Println("File not known to VirusTotal.")
+		fmt.Println(VtHash.VerboseMsg)
 		os.Exit(0)
 	}
-	for _, scan := range VtHash.Scans {
+	fmt.Printf("%23s | %s \n", "Scan Engine", "Detection Result")
+	fmt.Printf("%23s | %s \n", "-----------------------", "------------------")
+	for engine, scan := range VtHash.Scans {
 		if scan.Detected {
 			resultcount += 1
 			resultwords := regex.ReplaceAllString(scan.Result, " ")
@@ -141,7 +142,7 @@ func main() {
 					words[strings.Title(strings.ToLower(word))] += 1
 				}
 			}
-			fmt.Println("-->", scan.Result)
+			fmt.Printf("%23s | %s \n", engine, scan.Result)
 		} else {
 			falsecount += 1
 		}
