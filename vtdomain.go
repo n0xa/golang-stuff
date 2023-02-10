@@ -163,7 +163,7 @@ func main() {
 
 	domain := os.Args[1]
 
-	apiurl := fmt.Sprintf("%s%s%s", baseurl, "/domains/", domain)
+	apiurl := fmt.Sprintf("%s%s%s%s", baseurl, "/domains/", domain, "?limit=100")
 	fmt.Println("Querying VirusTotal v3 domains API")
 	client := http.Client{}
 	req, _ := http.NewRequest("GET", apiurl, nil)
@@ -176,7 +176,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	apiurl = fmt.Sprintf("%s%s%s%s", baseurl, "/domains/", domain, "/subdomains")
+	apiurl = fmt.Sprintf("%s%s%s%s", baseurl, "/domains/", domain, "/subdomains?limit=100")
 	fmt.Println("Querying VirusTotal v3 domains/subdomain API")
 	client = http.Client{}
 	req, _ = http.NewRequest("GET", apiurl, nil)
