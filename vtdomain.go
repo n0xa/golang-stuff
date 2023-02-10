@@ -1,6 +1,6 @@
 package main
 
-// VirusTotal domain API client
+// VirusTotal domain API v3 client
 // Retreive information about domains/hostnames from VirusTotal
 // By Noah Axon | IG: @4x0nn | Twitter: @ax0n | GH: n0xa
 
@@ -14,29 +14,137 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
-	type vtdomain struct {
-		DomainSiblings                 []interface{}   `json:"domain_siblings"`
-		UndetectedUrls                 [][]interface{} `json:"undetected_urls"`
-		UndetectedDownloadedSamples    []interface{}   `json:"undetected_downloaded_samples"`
-		Whois                          string          `json:"whois"`
-		WhoisTimestamp                 int             `json:"whois_timestamp"`
-		DetectedDownloadedSamples      []interface{}   `json:"detected_downloaded_samples"`
-		ResponseCode                   int             `json:"response_code"`
-		VerboseMsg                     string          `json:"verbose_msg"`
-		ForcepointThreatSeekerCategory string          `json:"Forcepoint ThreatSeeker category"`
-		Resolutions                    []struct {
-			LastResolved string `json:"last_resolved"`
-			IPAddress    string `json:"ip_address"`
-		} `json:"resolutions"`
-		Subdomains   []string      `json:"subdomains"`
-		DetectedUrls []interface{} `json:"detected_urls"`
+	type scanresult struct {
+		Category   string `json:"category"`
+		Result     string `json:"result"`
+		Method     string `json:"method"`
+		EngineName string `json:"engine_name"`
 	}
 
+	type vtsubdomain struct {
+		Meta struct {
+			Count  int    `json:"count"`
+			Cursor string `json:"cursor"`
+		} `json:"meta"`
+		Data []struct {
+			Attributes struct {
+				LastDNSRecords []struct {
+					Type     string `json:"type"`
+					Value    string `json:"value"`
+					TTL      int    `json:"ttl"`
+					Priority int    `json:"priority,omitempty"`
+					Rname    string `json:"rname,omitempty"`
+					Retry    int    `json:"retry,omitempty"`
+					Minimum  int    `json:"minimum,omitempty"`
+					Refresh  int    `json:"refresh,omitempty"`
+					Expire   int    `json:"expire,omitempty"`
+					Serial   int    `json:"serial,omitempty"`
+				} `json:"last_dns_records"`
+				Whois           string        `json:"whois"`
+				Tags            []interface{} `json:"tags"`
+				PopularityRanks struct {
+				} `json:"popularity_ranks"`
+				LastDNSRecordsDate int `json:"last_dns_records_date"`
+				LastAnalysisStats  struct {
+					Harmless   int `json:"harmless"`
+					Malicious  int `json:"malicious"`
+					Suspicious int `json:"suspicious"`
+					Undetected int `json:"undetected"`
+					Timeout    int `json:"timeout"`
+				} `json:"last_analysis_stats"`
+				CreationDate         int                   `json:"creation_date"`
+				Reputation           int                   `json:"reputation"`
+				Registrar            string                `json:"registrar"`
+				LastAnalysisResults  map[string]scanresult `json:"last_analysis_results"`
+				LastUpdateDate       int                   `json:"last_update_date"`
+				LastModificationDate int                   `json:"last_modification_date"`
+				Categories           struct {
+				} `json:"categories"`
+				TotalVotes struct {
+					Harmless  int `json:"harmless"`
+					Malicious int `json:"malicious"`
+				} `json:"total_votes"`
+			} `json:"attributes"`
+			Type  string `json:"type"`
+			ID    string `json:"id"`
+			Links struct {
+				Self string `json:"self"`
+			} `json:"links"`
+			ContextAttributes struct {
+				Timestamp int `json:"timestamp"`
+			} `json:"context_attributes"`
+		} `json:"data"`
+		Links struct {
+			Self string `json:"self"`
+			Next string `json:"next"`
+		} `json:"links"`
+	}
+
+	type vtdomain struct {
+		Data struct {
+			Attributes struct {
+				LastDNSRecords []struct {
+					Type     string `json:"type"`
+					Value    string `json:"value"`
+					TTL      int    `json:"ttl"`
+					Priority int    `json:"priority,omitempty"`
+					Rname    string `json:"rname,omitempty"`
+					Retry    int    `json:"retry,omitempty"`
+					Minimum  int    `json:"minimum,omitempty"`
+					Refresh  int    `json:"refresh,omitempty"`
+					Expire   int    `json:"expire,omitempty"`
+					Serial   int    `json:"serial,omitempty"`
+				} `json:"last_dns_records"`
+				Whois           string        `json:"whois"`
+				Tags            []interface{} `json:"tags"`
+				PopularityRanks struct {
+					Statvoo struct {
+						Timestamp int `json:"timestamp"`
+						Rank      int `json:"rank"`
+					} `json:"Statvoo"`
+					Alexa struct {
+						Timestamp int `json:"timestamp"`
+						Rank      int `json:"rank"`
+					} `json:"Alexa"`
+				} `json:"popularity_ranks"`
+				LastAnalysisDate   int `json:"last_analysis_date"`
+				LastDNSRecordsDate int `json:"last_dns_records_date"`
+				LastAnalysisStats  struct {
+					Harmless   int `json:"harmless"`
+					Malicious  int `json:"malicious"`
+					Suspicious int `json:"suspicious"`
+					Undetected int `json:"undetected"`
+					Timeout    int `json:"timeout"`
+				} `json:"last_analysis_stats"`
+				CreationDate         int                   `json:"creation_date"`
+				WhoisDate            int                   `json:"whois_date"`
+				Reputation           int                   `json:"reputation"`
+				Registrar            string                `json:"registrar"`
+				LastAnalysisResults  map[string]scanresult `json:"last_analysis_results"`
+				LastUpdateDate       int                   `json:"last_update_date"`
+				LastModificationDate int                   `json:"last_modification_date"`
+				Categories           struct {
+					AlphaMountainAi string `json:"alphaMountain.ai"`
+				} `json:"categories"`
+				TotalVotes struct {
+					Harmless  int `json:"harmless"`
+					Malicious int `json:"malicious"`
+				} `json:"total_votes"`
+			} `json:"attributes"`
+			Type  string `json:"type"`
+			ID    string `json:"id"`
+			Links struct {
+				Self string `json:"self"`
+			} `json:"links"`
+		} `json:"data"`
+	}
 	var VtDomain vtdomain
-	baseurl := "https://www.virustotal.com/vtapi"
+	var VtSubDomain vtsubdomain
+	baseurl := "https://www.virustotal.com/api/v3"
 
 	exit := 0
 	if len(os.Args) < 2 {
@@ -55,38 +163,80 @@ func main() {
 
 	domain := os.Args[1]
 
-	apiurl := fmt.Sprintf("%s/%s?apikey=%s&domain=%s", baseurl, "v2/domain/report", apikey, domain)
-	fmt.Println("Querying VirusTotal domain/report API")
-	resp, _ := http.Get(apiurl)
+	apiurl := fmt.Sprintf("%s%s%s", baseurl, "/domains/", domain)
+	fmt.Println("Querying VirusTotal v3 domains API")
+	client := http.Client{}
+	req, _ := http.NewRequest("GET", apiurl, nil)
+	req.Header = http.Header{"x-apikey": {apikey}}
+	resp, _ := client.Do(req)
 	body, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
-
+	resp.Body.Close()
 	err = json.Unmarshal([]byte(body), &VtDomain)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if len(VtDomain.Whois) > 0 {
-		fmt.Println("\n -=-=-=- Whois -=-=-=-")
-		fmt.Println(VtDomain.Whois)
+	apiurl = fmt.Sprintf("%s%s%s%s", baseurl, "/domains/", domain, "/subdomains")
+	fmt.Println("Querying VirusTotal v3 domains/subdomain API")
+	client = http.Client{}
+	req, _ = http.NewRequest("GET", apiurl, nil)
+	req.Header = http.Header{"x-apikey": {apikey}}
+	resp, _ = client.Do(req)
+	body, err = ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	err = json.Unmarshal([]byte(body), &VtSubDomain)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	fmt.Println("\n -=-=-=- DNS Resolutions -=-=-=-")
-	if len(VtDomain.Resolutions) > 0 {
-		fmt.Printf("%*s | %15s | %-25s \n", len(domain), "Name", "IP", "Date")
-		for _, resolution := range VtDomain.Resolutions {
-			fmt.Printf("%*s | %15s | %-25s \n", len(domain), domain, resolution.IPAddress, resolution.LastResolved)
+	analysisTime := time.Unix(int64(VtDomain.Data.Attributes.LastAnalysisDate), 0)
+	strDate := analysisTime.Format("2006/01/01")
+
+	fmt.Println("\n -=-=-=- Analysis Summary -=-=-=-")
+	fmt.Println("Harmless | Suspicious | Malicious | Scan Date  | Hostname ")
+	fmt.Printf("%8d | %10d | %9d | %10s | %s \n",
+		VtDomain.Data.Attributes.LastAnalysisStats.Harmless+VtDomain.Data.Attributes.LastAnalysisStats.Undetected,
+		VtDomain.Data.Attributes.LastAnalysisStats.Suspicious,
+		VtDomain.Data.Attributes.LastAnalysisStats.Malicious,
+		strDate,
+		domain)
+
+	if len(VtSubDomain.Data) > 0 {
+		for _, subdomain := range VtSubDomain.Data {
+			analysisTime := time.Unix(int64(subdomain.Attributes.LastUpdateDate), 0)
+			strDate := analysisTime.Format("2006/01/01")
+			fmt.Printf("%8d | %10d | %9d | %10s | %s \n",
+				subdomain.Attributes.LastAnalysisStats.Harmless+subdomain.Attributes.LastAnalysisStats.Undetected,
+				subdomain.Attributes.LastAnalysisStats.Suspicious,
+				subdomain.Attributes.LastAnalysisStats.Malicious,
+				strDate,
+				subdomain.ID)
 		}
-	} else {
-		fmt.Println("Virustotal Returned no DNS Resolutions.")
 	}
 
-	fmt.Println("\n -=-=-=- Subdomains / Host Names -=-=-=-")
-	if len(VtDomain.Subdomains) > 0 {
-		for _, subdomain := range VtDomain.Subdomains {
-			fmt.Println(subdomain)
+	if len(VtDomain.Data.Attributes.LastDNSRecords) > 0 {
+		fmt.Println("\n -=-=-=- Domain DNS Records -=-=-=-")
+		fmt.Printf("Type  |   TTL   | %*s | Record\n", len(domain), "Domain")
+		for _, dns := range VtDomain.Data.Attributes.LastDNSRecords {
+			fmt.Printf("%5s | %7d | %*s | %s\n",
+				dns.Type, dns.TTL, len(domain), domain, dns.Value)
 		}
-	} else {
-		fmt.Println("Virustotal Returned no Subdomains / Host Names.")
+	}
+
+	if len(VtSubDomain.Data) > 0 {
+		fmt.Println("\n -=-=-=- Additional Hosts and Subdomains -=-=-=-")
+		fmt.Printf("Type  |   TTL   | Record\n")
+		for _, subdomain := range VtSubDomain.Data {
+			for _, dns := range subdomain.Attributes.LastDNSRecords {
+				if (dns.Type == "A") || (dns.Type == "CNAME") {
+					fmt.Printf("%5s | %7d | %*s -> %s\n",
+						dns.Type,
+						dns.TTL,
+						len(subdomain.ID),
+						subdomain.ID,
+						dns.Value)
+				}
+			}
+		}
 	}
 }

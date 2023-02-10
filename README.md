@@ -1,6 +1,6 @@
 # GoLang-stuff
-A collection of Go tools I make while I learn a little about GoLang.
-Mostly Work-In-Progress and tinkering with blue-team, threat intelligence things
+A collection of Go tools I make while I learn a little about GoLang.  
+Mostly Work-In-Progress and tinkering with blue-team, threat intelligence things  
 
 bgpview.io Tools
 ----------------
@@ -22,7 +22,7 @@ You can also pass the output directly to formatting and query tools like `jq` or
 
 VirusTotal Tools
 ----------------
-Before using these tools, you must register with VirusTotal, acquire an API key and export it in the VTAPI environment variable, such as in your .bashrc or .zshrc file. As of writing, these are all using the VirusTotal v2 API, but I may switch them to the v3 API if I can sort out how to gracefully handle some of the JSON.
-`export VTAPI=dab2_THIS_IS_AN_EXAMPLE_API_KEY_-_CHANGEME_e8e0496bcfce5e91f0000`
+Before using these tools, you must register with VirusTotal, acquire an API key and export it in the VTAPI environment variable, such as in your .bashrc or .zshrc file.   
+`export VTAPI=dab2_THIS_IS_AN_EXAMPLE_API_KEY_-_CHANGEME_e8e0496bcfce5e91f0000`  
 * vthash.go is a command-line tool to gather the list of detections from VirusTotal for a given file or file hash. This allows security analysts to quickly size up an unknown file they have run across to see if it's been detected previously without firing up a web browser or uploading it.
-* vtdomain.go is a command-line tool to fetch information about a domain name from VirusTotal. Work-In-Progress, only returns cached Whois info, historical IP address resolutions, and known subdomains/host names right now. More details are available, and I'll add parsing of those as I iterate.
+* vtdomain.go is a command-line tool to fetch information about a domain name from VirusTotal. Work-In-Progress, using the newer VirusTotal API v3.  More details are available in the API, and I'll add parsing of those as I iterate.
