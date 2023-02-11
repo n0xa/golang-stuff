@@ -149,7 +149,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-
 	strDate := time.Unix(int64(VtIP.Data.Attributes.LastAnalysisDate), 0).Format("2006/01/01")
 
 	fmt.Println("\n -=-=-=- Analysis Summary -=-=-=-")
@@ -160,7 +159,7 @@ func main() {
 		VtIP.Data.Attributes.LastAnalysisStats.Malicious,
 		strDate,
 		ip)
-	
+
 	page := 1
 	fmt.Println("Querying VirusTotal v3 IP Addresses API")
 	fmt.Println("\n -=-=-=- DNS Hostnames -=-=-=-")

@@ -24,6 +24,8 @@ VirusTotal Tools
 ----------------
 Before using these tools, you must register with VirusTotal, acquire an API key and export it in the VTAPI environment variable, such as in your .bashrc or .zshrc file.   
 `export VTAPI=dab2_THIS_IS_AN_EXAMPLE_API_KEY_-_CHANGEME_e8e0496bcfce5e91f0000`  
+Some of these tools will iterate through a configurable number of pages of passive data (10 by default) which can use a lot of your daily API request allocation, so tune the "maxpages" variable to suit your situation if you find the number of queries it makes to be too much.
 * vthash.go is a command-line tool to gather the list of detections from VirusTotal for a given file or file hash. This allows security analysts to quickly size up an unknown file they have run across to see if it's been detected previously without firing up a web browser or uploading it.
-* vtdomain.go is a command-line tool to fetch information about a domain name from VirusTotal. Work-In-Progress, using the newer VirusTotal API v3.  More details are available in the API, and I'll add parsing of those as I iterate.
-* vtip.go queries IP address reputation and hostnames through VirusTotal's API. It will iterate through a configurable number of pages of passive DNS data (10 by default). Note that this tool can use a lot of your daily API request allocation, so tune the "maxpages" variable to suit your situation if you find the number of queries it makes to be too much.
+* vtdomain.go fetches information about a domain name from VirusTotal v3 `domains` API.
+* vtip.go queries IP address reputation and hostnames through VirusTotal's v3 `ip_addresses` API. 
+
