@@ -261,7 +261,11 @@ func main() {
 	}
 	hp := NewHpfeeds(ident, auth, host, port)
 	hp.Log = true
-	hp.Connect()
+	err = hp.Connect()
+	if err != nil {
+		fmt.Printf("Failed to connect: %s\n", err)
+		os.Exit(1)
+	}
 
 	firehose := make(chan Message)
 	hp.Subscribe(channel, firehose)
