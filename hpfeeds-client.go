@@ -245,8 +245,8 @@ func (hp *Hpfeeds) log(format string, v ...interface{}) {
 }
 
 func main() {
-	if len(os.Args) != 6 {
-		fmt.Printf("Usage: %s <ident> <authkey> <server> <port> <channel> (only one channel supported for now)\n", os.Args[0])
+	if len(os.Args) < 6 {
+		fmt.Printf("Usage: %s <ident> <authkey> <server> <port> <channel1> [channel2] [channel3] ...\n", os.Args[0])
 		os.Exit(0)
 	}
 
@@ -254,7 +254,7 @@ func main() {
 	auth := os.Args[2]
 	host := os.Args[3]
 	port, err := strconv.Atoi(os.Args[4])
-	channel := os.Args[5]
+	channels := os.Args[5:]
 	if err != nil {
 		fmt.Println("Port must be an integer")
 		os.Exit(1)
@@ -267,16 +267,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	firehose := make(chan Message)
-	hp.Subscribe(channel, firehose)
-	go func() {
-		for foo := range firehose {
-			// If you really want the HPFeeds honeypot id, uncomment.
-			// fmt.Println(foo.Name, string(foo.Payload))
-			// I just want the json payload so we can do fun stuff with jq etc
-			fmt.Println(string(foo.Payload))
-		}
-	}()
+	for _, channel := range channels {
+		firehose := make(chan Message)
+		hp.Subscribe(channel, firehose)
+		go func(ch string, feed chan Message) {
+			for foo := range feed {
+				// If you really want the HPFeeds honeypot id, uncomment.
+				// fmt.Printf("[%s] %s %s\n", ch, foo.Name, string(foo.Payload))
+				// I just want the json payload so we can do fun stuff with jq etc
+				fmt.Printf("[%s] %s\n", ch, string(foo.Payload))
+			}
+		}(channel, firehose)
+	}
 
 	// Wait for disconnect
 	<-hp.Disconnected
